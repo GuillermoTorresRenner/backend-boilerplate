@@ -14,7 +14,7 @@ import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { Auth } from './decorators/auth.decorator';
 import { Roles } from './roles.enum';
-import { UsersService } from 'src/users/users.service';
+import { UsersService } from '../users/users.service';
 import { ActiveUser } from './decorators/activeUser.decorator';
 import { ApiBearerAuth } from '@nestjs/swagger';
 
@@ -131,7 +131,9 @@ export class AuthController {
   @Get('logout')
   logout(@Res() res) {
     try {
-      return res.clearCookie('token').json({ message: 'logout' });
+      res.clearCookie('token');
+      res.clearCookie('refreshToken');
+      return res.json({ message: 'logout' });
     } catch (error) {
       throw new InternalServerErrorException({
         message: 'Error al cerrar sesión',
