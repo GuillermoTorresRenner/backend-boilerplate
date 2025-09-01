@@ -46,11 +46,22 @@ export class AuthController {
   @Post('login')
   async login(@Body() loginDto: LoginDto, @Req() req, @Res() res) {
     try {
-      const token = await this.authService.login(loginDto);
+      const { accessToken, refreshToken } =
+        await this.authService.login(loginDto);
       const user = await this.userService.findByEmail(loginDto.email);
-
       await this.userService.updateLastConnection(user.id);
-      res.cookie('token', token, { httpOnly: true });
+      res.cookie('token', accessToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+        maxAge: 5 * 60 * 1000,
+      });
+      res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+        maxAge: 24 * 60 * 60 * 1000,
+      });
       return res.status(200).json({
         message: 'Login exitoso',
         user: { name: user.name, surname: user.surname, role: user.role },
@@ -61,8 +72,44 @@ export class AuthController {
       });
     }
   }
+  @Post('refresh')
+  async refresh(@Req() req, @Res() res) {
+    try {
+      const refreshToken = req.cookies['refreshToken'];
+      if (!refreshToken) {
+        return res.status(401).json({ message: 'No refresh token' });
+      }
+      // Decodificar el token para obtener el id
+      let payload: any;
+      try {
+        payload =
+          await this.authService['jwtService'].verifyAsync(refreshToken);
+      } catch {
+        return res
+          .status(401)
+          .json({ message: 'Refresh token inválido o expirado' });
+      }
+      const { accessToken, refreshToken: newRefreshToken } =
+        await this.authService.refresh(payload.id, refreshToken);
+      res.cookie('token', accessToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+        maxAge: 5 * 60 * 1000,
+      });
+      res.cookie('refreshToken', newRefreshToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+        maxAge: 24 * 60 * 60 * 1000,
+      });
+      return res.status(200).json({ message: 'Token refrescado' });
+    } catch (error) {
+      return res.status(500).json({ message: error.message });
+    }
+  }
   @ApiBearerAuth()
-  @Auth([Roles.ADMIN])
+  @Auth()
   @Get('me')
   async me(@ActiveUser() user, @Res() res) {
     try {

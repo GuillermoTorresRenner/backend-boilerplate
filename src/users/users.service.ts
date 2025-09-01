@@ -62,6 +62,13 @@ export class UsersService {
     });
   }
 
+  async updateRefreshToken(id: string, refreshToken: string) {
+    return await this.prismaService.users.update({
+      where: { id },
+      data: { refreshToken },
+    });
+  }
+
   async validatePassword(
     password: string,
     hashedPassword: string,
