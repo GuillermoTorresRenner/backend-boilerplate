@@ -1,7 +1,160 @@
+## Ejemplos de uso de endpoints
+
+### Registro
+
+```http
+POST /auth/register
+Content-Type: application/json
+
+{
+  "email": "usuario@correo.com",
+  "password": "contraseña123",
+  "name": "Nombre",
+  "surname": "Apellido",
+  "role": "ADMIN"
+}
+```
+
+### Login
+
+```http
+POST /auth/login
+Content-Type: application/json
+
+{
+  "email": "usuario@correo.com",
+  "password": "contraseña123"
+}
+```
+
+Tokens se reciben en cookies seguras.
+
+### Refrescar token
+
+```http
+POST /auth/refresh
+Cookie: refreshToken=<refresh_token>
+```
+
+Devuelve nuevos tokens en cookies.
+
+### Obtener usuario autenticado
+
+```http
+GET /auth/me
+Cookie: token=<access_token>
+```
+
+### Logout
+
+```http
+GET /auth/logout
+```
+
+Elimina las cookies de autenticación.
+
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
 
+Este proyecto es un boilerplate para backend con NestJS y Prisma, implementando autenticación JWT con refresh tokens, gestión de usuarios y productos, y estructura modular.
+
+## Tecnologías principales
+
+- NestJS
+- Prisma ORM
+- PostgreSQL
+- JWT (access y refresh tokens)
+- Docker (opcional)
+
+## Estructura principal
+
+- `src/` - Código fuente principal
+  - `auth/` - Módulo de autenticación (login, registro, guards, decoradores)
+  - `users/` - Módulo de usuarios
+  - `products/` - Módulo de productos
+  - `prisma/` - Servicio y módulo de acceso a base de datos
+  - `utils/` - Utilidades
+- `prisma/schema/` - Schemas Prisma divididos por dominio
+- `test/` - Pruebas e2e
+
+## Autenticación
+
+- **Access token:** Expira en 5 minutos
+- **Refresh token:** Expira en 24 horas, se actualiza cada vez que se usa
+- Ambos tokens se envían en cookies seguras (httpOnly, secure, sameSite strict)
+- El refresh token se almacena en la base de datos por usuario (un solo dispositivo por usuario)
+
+## Endpoints principales
+
+### Auth
+
+- `POST /auth/register` - Registro de usuario
+- `POST /auth/login` - Login, devuelve access y refresh tokens en cookies
+- `POST /auth/refresh` - Refresca los tokens usando el refresh token
+- `GET /auth/me` - Devuelve datos del usuario autenticado
+- `GET /auth/logout` - Elimina los tokens y cierra sesión
+
+### Users
+
+- `GET /users/:id` - Obtener usuario por id
+- `GET /users` - Listar usuarios (si implementado)
+- `POST /users` - Crear usuario (si implementado)
+
+### Products
+
+- `GET /products/:id` - Obtener producto por id
+- `GET /products` - Listar productos
+- `POST /products` - Crear producto
+- `PUT /products/:id` - Actualizar producto
+- `DELETE /products/:id` - Eliminar producto
+
+## Particularidades y buenas prácticas
+
+- Prisma schema dividido por dominio, con un archivo principal que contiene `datasource` y `generator`
+- Uso de decoradores personalizados para roles y usuario activo
+- Guards para roles y autenticación
+- Validación de DTOs con `class-validator`
+- Uso de Docker para base de datos y Adminer
+- Configuración de variables de entorno en `.env`
+- Documentación Swagger disponible en `/docs`
+
+## Instalación y uso
+
+```bash
+npm install
+npm run build
+npm run start:dev
+```
+
+## Migraciones Prisma
+
+```bash
+npx prisma migrate dev --name <nombre>
+```
+
+## Pruebas
+
+```bash
+npm run test
+npm run test:e2e
+```
+
+## Variables de entorno
+
+Ver archivo `.env.example` para configuración recomendada.
+
+## Seguridad
+
+- Tokens en cookies httpOnly y secure
+- Refresh token se actualiza en cada uso
+- Acceso a endpoints protegido por guards y decoradores
+
+## Contacto y soporte
+
+- Autor: Guillermo Torres Renner
+- Documentación NestJS: https://docs.nestjs.com
+- Documentación Prisma: https://www.prisma.io/docs
 [circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
 [circleci-url]: https://circleci.com/gh/nestjs/nest
 

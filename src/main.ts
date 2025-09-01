@@ -15,8 +15,8 @@ async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe());
   const config = new DocumentBuilder()
-    .setTitle('SPAK ERP backend')
-    .setDescription('Documentación de la API de SPAK ERP')
+    .setTitle('backend Api Docs')
+    .setDescription('Documentación de la API')
     .setVersion('1.0')
     .addBearerAuth()
     .build();
