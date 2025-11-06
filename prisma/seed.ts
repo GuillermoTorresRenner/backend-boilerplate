@@ -1,63 +1,37 @@
-// import { PrismaClient } from '@prisma/client';
-// const prisma = new PrismaClient();
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
 
-// async function main(): Promise<void> {
-//   await prisma.users.createMany({
-//     data: [
-//       {
-//         rut: '11111111-1',
-//         password:
-//           '$2b$10$fnVBkMppKicses7KMN/RV.fWe5iEDRDI0scd3fp4oTm5BToLhjXfi',
-//         lastPassword:
-//           '$2b$10$fnVBkMppKicses7KMN/RV.fWe5iEDRDI0scd3fp4oTm5BToLhjXfi',
+async function main(): Promise<void> {
+  // Crear el rol admin primero
+  const adminRole = await prisma.role.upsert({
+    where: { name: 'ADMIN' },
+    update: {},
+    create: { name: 'ADMIN' },
+  });
 
-//         name: 'Admin',
-//         surname: 'Spak',
-//         role: 'ADMIN',
-//       },
-//       {
-//         rut: '22222222-2',
-//         password:
-//           '$2b$10$fnVBkMppKicses7KMN/RV.fWe5iEDRDI0scd3fp4oTm5BToLhjXfi',
-//         lastPassword:
-//           '$2b$10$fnVBkMppKicses7KMN/RV.fWe5iEDRDI0scd3fp4oTm5BToLhjXfi',
+  // Crear el usuario con el roleId del rol admin creado
+  await prisma.users.upsert({
+    where: { email: 'guillermo.torres@lanek.cl' },
+    update: {},
+    create: {
+      email: 'guillermo.torres@lanek.cl',
+      password: '$2b$10$t7QlEELGNESkO27JBeilTeu3uIetDo15aY9SFC4EK.XWmJJLdKK7G',
+      name: 'Guillermo',
+      surname: 'Torres',
+      roleId: adminRole.id, // Se asigna automáticamente el ID correcto del rol creado
+    },
+  });
 
-//         name: 'Production',
-//         surname: 'Spak',
-//         role: 'PRODUCTION',
-//       },
-//       {
-//         rut: '33333333-3',
-//         password:
-//           '$2b$10$fnVBkMppKicses7KMN/RV.fWe5iEDRDI0scd3fp4oTm5BToLhjXfi',
-//         lastPassword:
-//           '$2b$10$fnVBkMppKicses7KMN/RV.fWe5iEDRDI0scd3fp4oTm5BToLhjXfi',
+  console.log('Seed data created successfully!');
+  console.log('Admin role ID:', adminRole.id);
+}
 
-//         name: 'Quality',
-//         surname: 'Spak',
-//         role: 'QUALITY',
-//       },
-//       {
-//         rut: '44444444-4',
-//         password:
-//           '$2b$10$fnVBkMppKicses7KMN/RV.fWe5iEDRDI0scd3fp4oTm5BToLhjXfi',
-//         lastPassword:
-//           '$2b$10$fnVBkMppKicses7KMN/RV.fWe5iEDRDI0scd3fp4oTm5BToLhjXfi',
-
-//         name: 'Store',
-//         surname: 'Spak',
-//         role: 'STORE',
-//       },
-//     ],
-//   });
-// }
-
-// main()
-//   .then(async () => {
-//     await prisma.$disconnect();
-//   })
-//   .catch(async (e) => {
-//     console.error(e);
-//     await prisma.$disconnect();
-//     process.exit(1);
-//   });
+main()
+  .then(async () => {
+    await prisma.$disconnect();
+  })
+  .catch(async (e) => {
+    console.error(e);
+    await prisma.$disconnect();
+    process.exit(1);
+  });

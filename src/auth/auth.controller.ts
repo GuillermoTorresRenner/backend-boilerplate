@@ -64,7 +64,7 @@ export class AuthController {
       });
       return res.status(200).json({
         message: 'Login exitoso',
-        user: { name: user.name, surname: user.surname, role: user.role },
+        user: { name: user.name, surname: user.surname, role: user.role.name }, // Cambio aquí
       });
     } catch (error) {
       return res.status(500).json({
@@ -121,7 +121,7 @@ export class AuthController {
       return res.json({
         name: foundedUser.name,
         surname: foundedUser.surname,
-        role: foundedUser.role,
+        role: foundedUser.role.name, // Cambio aquí
       });
     } catch (error) {
       throw new NotFoundException({ message: 'Usuario no encontrado', error });

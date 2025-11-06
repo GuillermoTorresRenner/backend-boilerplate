@@ -27,7 +27,7 @@ export class AuthGuard implements CanActivate {
       });
       const user = await this.usersService.findById(payload.id);
       request['userID'] = payload.id;
-      request['role'] = user.role;
+      request['role'] = user.role.name; // Ahora accedemos al name del rol
     } catch {
       throw new UnauthorizedException();
     }
