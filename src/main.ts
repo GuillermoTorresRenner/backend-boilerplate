@@ -13,10 +13,20 @@ async function bootstrap() {
   });
   app.use(cookieParser());
 
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true, // Habilita la transformación automática
+      whitelist: true, // Solo permite propiedades definidas en el DTO
+      transformOptions: {
+        enableImplicitConversion: true, // Permite conversión implícita de tipos
+      },
+    }),
+  );
   const config = new DocumentBuilder()
-    .setTitle('backend Api Docs')
-    .setDescription('Documentación de la API')
+    .setTitle('Otaria backend Api Docs')
+    .setDescription(
+      'Documentación de los endpoints de la aplicación Otaria Hellas de Carbono',
+    )
     .setVersion('1.0')
     .addBearerAuth()
     .build();

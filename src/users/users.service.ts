@@ -16,11 +16,21 @@ export class UsersService {
     try {
       const userExists = await this.findByEmail(createUserDto.email);
       if (userExists) throw new BadRequestException('El usuario ya existe');
+
+      // Verificar que el role existe
+      const roleExists = await this.prismaService.role.findUnique({
+        where: { id: createUserDto.roleId },
+      });
+      if (!roleExists) throw new BadRequestException('El rol no existe');
+
       const hashedPassword = bcrypt.hashSync(createUserDto.password, 10);
       const user = await this.prismaService.users.create({
         data: {
           ...createUserDto,
           password: hashedPassword,
+        },
+        include: {
+          role: true, // Incluir información del rol
         },
       });
       return user;
@@ -32,11 +42,13 @@ export class UsersService {
     }
   }
 
-  a;
   async findById(id: string) {
     const user = await this.prismaService.users.findUnique({
       where: {
         id,
+      },
+      include: {
+        role: true, // Incluir información del rol
       },
     });
     if (!user) throw new NotFoundException('Usuario no encontrado');
@@ -47,6 +59,9 @@ export class UsersService {
     return await this.prismaService.users.findUnique({
       where: {
         email,
+      },
+      include: {
+        role: true, // Incluir información del rol
       },
     });
   }
@@ -59,6 +74,9 @@ export class UsersService {
       data: {
         lastConnection: new Date(),
       },
+      include: {
+        role: true,
+      },
     });
   }
 
@@ -66,6 +84,9 @@ export class UsersService {
     return await this.prismaService.users.update({
       where: { id },
       data: { refreshToken },
+      include: {
+        role: true,
+      },
     });
   }
 

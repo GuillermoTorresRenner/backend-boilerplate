@@ -44,7 +44,7 @@ export class AuthService {
       name: user.name,
       surname: user.surname,
       email: user.email,
-      role: user.role,
+      role: user.role.name, // Ahora accedemos al name del rol
     };
   }
 
